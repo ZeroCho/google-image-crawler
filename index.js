@@ -15,6 +15,7 @@ const download = function (uri, filename) {
     request.head(uri, function (err, res, body) {
       if (err) {
         console.error(err);
+        return resolve();
       }
       console.log('uri', uri);
       console.log('filename', filename);
@@ -50,11 +51,17 @@ const crawler = async () => {
       return promise.then(() => {
         const obj = new url.URL(href);
         let target = decodeURIComponent(obj.searchParams.get('imgurl'));
+        console.log('target', target, typeof target);
+        if (!target || target === 'null') {
+          return;
+        }
         const targetObj = new url.URL(target);
         const targetPath = targetObj.pathname;
         targetObj.pathname = encodeURI(targetPath);
         target = url.format(targetObj);
         return download(target, index.toString());
+      }).catch((err) => {
+        console.error(index, err);
       });
     }, Promise.resolve());
     await page.close();
